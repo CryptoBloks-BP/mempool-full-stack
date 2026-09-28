@@ -9,3 +9,9 @@ services:
 networks:
   mempool_net:
     driver: bridge
+    # An explicit subnet is required for per-service ipv4_address. bitcoind is
+    # pinned to a static address because electrs resolves --daemon-rpc-addr only
+    # once at startup and caches the IP for the life of the process.
+    ipam:
+      config:
+        - subnet: {{DOCKER_SUBNET}}
