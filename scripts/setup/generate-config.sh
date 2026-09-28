@@ -923,6 +923,29 @@ generate_compose() {
     local security_block
     security_block="$(_compose_security_block "    ")"
 
+    # ---- Static addressing for bitcoind -------------------------------------
+    # electrs resolves --daemon-rpc-addr exactly ONCE at startup and caches the
+    # IP for the life of the process. If bitcoind is restarted and comes back on
+    # a different dynamically-assigned address, electrs keeps dialling the old
+    # one and the index silently stalls. Pinning bitcoind's address removes the
+    # churn, so a bitcoind restart can no longer strand electrs.
+    local docker_subnet subnet_prefix bitcoind_stop_grace
+    docker_subnet="$(get_config DOCKER_SUBNET 172.19.0.0/16)"
+    subnet_prefix="$(printf '%s' "${docker_subnet%%/*}" | awk -F. '{print $1"."$2"."$3}')"
+    # Start high: Docker's dynamic allocator assigns from the bottom of the
+    # subnet, so a low pinned address can collide with a dynamic one and the
+    # statically-addressed container then fails to start.
+    local bitcoind_ip_offset=20
+    local net_index=0
+    # bitcoind flushes a large dbcache on shutdown; Docker's 10s default can
+    # SIGKILL it mid-write. Keep this below the systemd unit's TimeoutStopSec.
+    bitcoind_stop_grace="$(get_config BITCOIND_STOP_GRACE 120s)"
+    # electrs log verbosity. Defaults to -vvv to match the deployed stack, which
+    # logs every HTTP request. Set ELECTRS_VERBOSITY= (empty) in node.conf to
+    # quieten it; -vvv is a lot of log volume for a steady-state node.
+    local electrs_verbosity
+    electrs_verbosity="$(get_config ELECTRS_VERBOSITY -vvv)"
+
     # ==== Build per-network services ====
     # TODO: Currently uses a single global indexer (electrs) for all networks.
     # Future: support per-network indexer choice (e.g., Fulcrum for mainnet,
@@ -961,7 +984,9 @@ generate_compose() {
         network_services+="      retries: 5"$'\n'
         network_services+="      start_period: 600s"$'\n'
         network_services+="    networks:"$'\n'
-        network_services+="      - mempool_net"$'\n'
+        network_services+="      mempool_net:"$'\n'
+        network_services+="        ipv4_address: ${subnet_prefix}.$(( bitcoind_ip_offset + net_index ))"$'\n'
+        network_services+="    stop_grace_period: ${bitcoind_stop_grace}   # large dbcache flush; Docker's 10s default risks SIGKILL mid-write"$'\n'
         network_services+="${security_block}"$'\n'
         network_services+=$'\n'
 
@@ -999,6 +1024,9 @@ generate_compose() {
         network_services+="      - --rest-default-chain-txs-per-page"$'\n'
         network_services+="      - \"10\""$'\n'
         network_services+="      - --jsonrpc-import"$'\n'
+        if [[ -n "${electrs_verbosity}" ]]; then
+            network_services+="      - ${electrs_verbosity}"$'\n'
+        fi
         network_services+="    depends_on:"$'\n'
         network_services+="      bitcoind-${net}:"$'\n'
         network_services+="        condition: service_healthy"$'\n'
@@ -1007,6 +1035,10 @@ generate_compose() {
         network_services+="    expose:"$'\n'
         network_services+="      - \"50001\""$'\n'
         network_services+="      - \"3003\""$'\n'
+        network_services+="    ulimits:"$'\n'
+        network_services+="      nofile:"$'\n'
+        network_services+="        soft: 65536"$'\n'
+        network_services+="        hard: 65536"$'\n'
         network_services+="    networks:"$'\n'
         network_services+="      - mempool_net"$'\n'
         network_services+="${security_block}"$'\n'
@@ -1028,8 +1060,11 @@ generate_compose() {
         network_services+="      - \"8999\""$'\n'
         network_services+="    networks:"$'\n'
         network_services+="      - mempool_net"$'\n'
+        network_services+="    stop_grace_period: 15s   # ignores SIGTERM; don't waste the full daemon grace"$'\n'
         network_services+="${security_block}"$'\n'
         network_services+=$'\n'
+
+        net_index=$(( net_index + 1 ))
     done
 
     # Remove trailing newline
@@ -1199,6 +1234,7 @@ generate_compose() {
     declare -A compose_vars=(
         [NETWORK_SERVICES]="${network_services}"
         [SHARED_SERVICES]="${shared_services}"
+        [DOCKER_SUBNET]="${docker_subnet}"
     )
 
     local output
