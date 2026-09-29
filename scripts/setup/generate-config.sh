@@ -324,6 +324,23 @@ get_network_section() {
 }
 
 # ==============================================================================
+# Helper: get_bitcoin_datadir_subdir NETWORK
+#   bitcoind nests non-mainnet chain data under a subdirectory of the datadir.
+#   mainnet lives at the datadir root; signet under signet/. Needed to build
+#   correct bind-mount destinations for chainstate/ and indexes/.
+#   NOTE: testnet is untested here - Core uses testnet3 for -testnet=1.
+# ==============================================================================
+get_bitcoin_datadir_subdir() {
+    local network="$1"
+    case "${network}" in
+        mainnet)  printf '' ;;
+        signet)   printf '/signet' ;;
+        testnet)  printf '/testnet3' ;;
+        *)        log_error "Unknown network: ${network}"; return 1 ;;
+    esac
+}
+
+# ==============================================================================
 # Helper: get_mempool_network NETWORK
 #   Maps our network name to Mempool backend NETWORK config value.
 # ==============================================================================
@@ -973,6 +990,23 @@ generate_compose() {
         network_services+="    volumes:"$'\n'
         network_services+="      - ${storage_path}/${net}/bitcoin:/data/.bitcoin"$'\n'
         network_services+="      - ./config/${net}/bitcoin.conf:/data/.bitcoin/bitcoin.conf:ro"$'\n'
+        # Optionally relocate the random-access LevelDB dirs off the bulk pool.
+        # blocks/ is append-only and belongs on slow storage; chainstate/ and
+        # indexes/ are random-access and dominate startup cost - loading the
+        # persisted mempool re-validates every tx against the UTXO set, which
+        # on slow storage stalls RPC (it holds cs_main) and starves electrs.
+        # Empty (the default) leaves them in the datadir.
+        local net_upper_b bitcoin_subdir bitcoin_chainstate_path bitcoin_indexes_path
+        net_upper_b="$(echo "${net}" | tr '[:lower:]' '[:upper:]')"
+        bitcoin_subdir="$(get_bitcoin_datadir_subdir "${net}")"
+        bitcoin_chainstate_path="$(get_config "BITCOIN_${net_upper_b}_CHAINSTATE_PATH" "")"
+        bitcoin_indexes_path="$(get_config "BITCOIN_${net_upper_b}_INDEXES_PATH" "")"
+        if [[ -n "${bitcoin_chainstate_path}" ]]; then
+            network_services+="      - ${bitcoin_chainstate_path}:/data/.bitcoin${bitcoin_subdir}/chainstate"$'\n'
+        fi
+        if [[ -n "${bitcoin_indexes_path}" ]]; then
+            network_services+="      - ${bitcoin_indexes_path}:/data/.bitcoin${bitcoin_subdir}/indexes"$'\n'
+        fi
         network_services+="    ports:"$'\n'
         network_services+="      - \"${bind_ip}:${CHAIN_P2P_PORT}:${CHAIN_P2P_PORT}\""$'\n'
         network_services+="    expose:"$'\n'
