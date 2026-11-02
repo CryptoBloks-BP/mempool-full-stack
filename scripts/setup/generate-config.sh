@@ -347,7 +347,7 @@ get_bitcoin_datadir_subdir() {
 get_mempool_network() {
     local network="$1"
     case "${network}" in
-        mainnet)  printf '' ;;
+        mainnet)  printf 'mainnet' ;;
         signet)   printf 'signet' ;;
         testnet)  printf 'testnet' ;;
         *)        log_error "Unknown network: ${network}"; return 1 ;;

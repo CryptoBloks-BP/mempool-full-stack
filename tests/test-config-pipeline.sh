@@ -339,6 +339,9 @@ assert_file_contains "docker-compose.yml: mempool-web service" \
 assert_file_contains "docker-compose.yml: openresty service" \
     "${WORK_DIR}/docker-compose.yml" \
     "^  openresty:"
+assert_file_contains "mempool-config.json: mainnet NETWORK is not empty" \
+    "${WORK_DIR}/config/mainnet/mempool-config.json" \
+    '"NETWORK": "mainnet"'
 for pinned_image in mempool/electrs:v3.3.0 mempool/backend:v3.3.2 mempool/frontend:v3.3.2 mariadb:11.8.9 openresty/openresty:1.31.8.1-alpine; do
     assert_file_contains "docker-compose.yml: image ${pinned_image}" \
         "${WORK_DIR}/docker-compose.yml" \
