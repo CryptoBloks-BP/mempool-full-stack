@@ -276,8 +276,8 @@ BLOCK_HEIGHT=0
 BITCOIN_VERSION="$(get_config BITCOIN_VERSION "unknown")"
 TXINDEX="$(get_config BITCOIN_TXINDEX "true")"
 MEMPOOL_VERSION="$(get_config MEMPOOL_VERSION "unknown")"
-ELECTRS_VERSION="$(get_config ELECTRS_VERSION "latest")"
-MARIADB_VERSION="$(get_config MARIADB_VERSION "10.11")"
+ELECTRS_VERSION="$(get_config ELECTRS_VERSION "v3.3.0")"
+MARIADB_VERSION="$(get_config MARIADB_VERSION "11.8.9")"
 
 rpc_user="$(get_config BITCOIN_RPC_USER "mempool")"
 rpc_pass="$(get_config BITCOIN_RPC_PASS "")"

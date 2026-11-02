@@ -14,7 +14,7 @@ A configurator-driven, self-hosted Bitcoin infrastructure platform. Deploy a com
 
 ## Prerequisites
 
-- Docker and Docker Compose (v2)
+- Docker Engine 29.9.2+ (earlier releases lack published security fixes) with the Docker Compose plugin (`docker compose`, v2 or newer)
 - Bash 4.0+
 - 600GB+ disk space (mainnet), ~5GB (signet), ~30GB (testnet)
 - 8GB+ RAM recommended
@@ -83,11 +83,11 @@ All containers run on the `mempool_net` bridge network (172.20.0.0/24).
 
 | Component | Default Version |
 |-----------|----------------|
-| Bitcoin Core | 28.1 |
-| Mempool | 3.1.0 |
-| Electrs | latest |
-| MariaDB | 10.11 |
-| OpenResty | alpine |
+| Bitcoin Core | 30.4 |
+| Mempool | 3.3.2 |
+| Electrs | v3.3.0 |
+| MariaDB | 11.8.9 |
+| OpenResty | 1.31.8.1-alpine |
 
 ## Node Management
 
