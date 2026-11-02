@@ -1144,8 +1144,11 @@ generate_compose() {
     shared_services+=$'\n'
 
     # --- mempool-web ---
-    local mempool_web_image
-    mempool_web_image="$(get_docker_image mempool-web)"
+    # Built locally on a patched nginx base. Temporary: see docker/Dockerfile.frontend.
+    get_default_versions
+    local frontend_mempool_version frontend_nginx_version
+    frontend_mempool_version="${MEMPOOL_VERSION:-${RECOMMENDED_MEMPOOL_VERSION}}"
+    frontend_nginx_version="$(get_config FRONTEND_NGINX_VERSION "${RECOMMENDED_FRONTEND_NGINX_VERSION}")"
 
     # Build frontend env vars: backend hosts + network enable flags
     local frontend_env=""
@@ -1158,7 +1161,12 @@ generate_compose() {
     frontend_env="${frontend_env%$'\n'}"
 
     shared_services+="  mempool-web:"$'\n'
-    shared_services+="    image: ${mempool_web_image}"$'\n'
+    shared_services+="    build:"$'\n'
+    shared_services+="      context: ."$'\n'
+    shared_services+="      dockerfile: docker/Dockerfile.frontend"$'\n'
+    shared_services+="      args:"$'\n'
+    shared_services+="        MEMPOOL_VERSION: \"${frontend_mempool_version}\""$'\n'
+    shared_services+="        NGINX_VERSION: \"${frontend_nginx_version}\""$'\n'
     shared_services+="    container_name: mempool-web"$'\n'
     shared_services+="    environment:"$'\n'
     shared_services+="${frontend_env}"$'\n'

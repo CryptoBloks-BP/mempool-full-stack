@@ -17,6 +17,8 @@ Default versions moved to patched releases. Existing deployments keep the versio
 - OpenResty 1.29.2.1 → 1.31.8.1 (nginx 1.31.8, OpenSSL 3.5.9)
 - Fulcrum build-from-source Dockerfile 1.11.1 → 2.1.4
 - README prerequisite raised to Docker Engine 29.9.2+
+- Frontend now runs on official nginx 1.30.6 instead of the nginx 1.27.0 in `mempool/frontend:v3.3.2`, using upstream's site files, config and entrypoint. Temporary until upstream ships a patched image
+- `update.sh` now rebuilds locally built images, so version changes to Bitcoin Core and the frontend take effect
 
 ---
 

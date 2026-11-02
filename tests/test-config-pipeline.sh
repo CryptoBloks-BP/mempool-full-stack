@@ -342,11 +342,23 @@ assert_file_contains "docker-compose.yml: openresty service" \
 assert_file_contains "mempool-config.json: mainnet NETWORK is not empty" \
     "${WORK_DIR}/config/mainnet/mempool-config.json" \
     '"NETWORK": "mainnet"'
-for pinned_image in mempool/electrs:v3.3.0 mempool/backend:v3.3.2 mempool/frontend:v3.3.2 mariadb:11.8.9 openresty/openresty:1.31.8.1-alpine; do
+for pinned_image in mempool/electrs:v3.3.0 mempool/backend:v3.3.2 mariadb:11.8.9 openresty/openresty:1.31.8.1-alpine; do
     assert_file_contains "docker-compose.yml: image ${pinned_image}" \
         "${WORK_DIR}/docker-compose.yml" \
         "image: ${pinned_image}\$"
 done
+assert_file_contains "docker-compose.yml: frontend built from local Dockerfile" \
+    "${WORK_DIR}/docker-compose.yml" \
+    "dockerfile: docker/Dockerfile.frontend"
+assert_file_contains "docker-compose.yml: frontend MEMPOOL_VERSION build arg" \
+    "${WORK_DIR}/docker-compose.yml" \
+    'MEMPOOL_VERSION: "3.3.2"'
+assert_file_contains "docker-compose.yml: frontend NGINX_VERSION build arg" \
+    "${WORK_DIR}/docker-compose.yml" \
+    'NGINX_VERSION: "1.30.6"'
+assert_file_not_contains "docker-compose.yml: unpatched upstream frontend image not used" \
+    "${WORK_DIR}/docker-compose.yml" \
+    "image: mempool/frontend"
 assert_file_contains "docker-compose.yml: BITCOIN_VERSION build arg 30.4" \
     "${WORK_DIR}/docker-compose.yml" \
     'BITCOIN_VERSION: "30.4"'

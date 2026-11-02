@@ -114,6 +114,8 @@ get_default_versions() {
     RECOMMENDED_ELECTRS_VERSION="v3.3.0"
     RECOMMENDED_MARIADB_VERSION="11.8.9"
     RECOMMENDED_OPENRESTY_VERSION="1.31.8.1-alpine"
+    # Base for docker/Dockerfile.frontend. Temporary: see that file.
+    RECOMMENDED_FRONTEND_NGINX_VERSION="1.30.6"
 
     SUPPORTED_BITCOIN_VERSIONS=(30.4 31.2 32.1)
     SUPPORTED_MEMPOOL_VERSIONS=(3.3.2)
