@@ -190,7 +190,7 @@ fi
 
 # Recreate containers with new images
 log_info "Recreating containers..."
-if ! docker compose up -d; then
+if ! docker compose up -d --build; then
     log_error "Container recreation failed. Rolling back..."
     if [[ -n "${BACKUP_CONF}" && -f "${BACKUP_CONF}" ]]; then
         mv -f "${BACKUP_CONF}" "${PROJECT_ROOT}/node.conf"

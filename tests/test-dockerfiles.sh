@@ -53,6 +53,17 @@ assert_file_contains "[M6] Has SHA256 verification" "${BTC}" "sha256sum|SHA256SU
 
 echo ""
 
+# --- Dockerfile.frontend ---
+FE="${PROJECT_ROOT}/docker/Dockerfile.frontend"
+echo "--- Dockerfile.frontend ---"
+assert_file_contains "Has ARG MEMPOOL_VERSION" "${FE}" "^ARG MEMPOOL_VERSION"
+assert_file_contains "Has ARG NGINX_VERSION" "${FE}" "^ARG NGINX_VERSION"
+assert_file_contains "Copies from upstream frontend" "${FE}" "^FROM mempool/frontend:v"
+assert_file_contains "Uses official nginx base" "${FE}" "^FROM nginx:"
+assert_file_contains "Runs as uid 1000" "${FE}" "^USER 1000"
+assert_file_contains "Uses upstream entrypoint" "${FE}" 'ENTRYPOINT.*entrypoint.sh'
+echo ""
+
 # --- Dockerfile.fulcrum ---
 FUL="${PROJECT_ROOT}/docker/Dockerfile.fulcrum"
 echo "--- Dockerfile.fulcrum ---"

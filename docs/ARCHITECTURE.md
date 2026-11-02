@@ -310,7 +310,7 @@ Per-network defaults, chain parameters, and Docker image mappings:
 | Component | Default | Image |
 |-----------|---------|-------|
 | Bitcoin Core | 30.4 | built from `docker/Dockerfile.bitcoin` |
-| Mempool | 3.3.2 | `mempool/backend:v3.3.2`, `mempool/frontend:v3.3.2` |
+| Mempool | 3.3.2 | `mempool/backend:v3.3.2`; frontend built from `docker/Dockerfile.frontend` (upstream v3.3.2 files on nginx 1.30.6, temporary) |
 | Electrs | v3.3.0 | `mempool/electrs:v3.3.0` |
 | MariaDB | 11.8.9 | `mariadb:11.8.9` |
 | OpenResty | 1.31.8.1-alpine | `openresty/openresty:1.31.8.1-alpine` |

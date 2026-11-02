@@ -1,0 +1,32 @@
+# TEMPORARY: remove this file and return to the upstream image once
+# mempool/frontend ships an nginx outside the vulnerable ranges at
+# https://nginx.org/en/security_advisories.html. Upstream v3.3.2 ships 1.27.0.
+#
+# Runs the unmodified upstream frontend on a patched official nginx base. Only
+# the base image differs; site files, config and entrypoint come from upstream.
+
+ARG MEMPOOL_VERSION=3.3.2
+ARG NGINX_VERSION=1.30.6
+
+FROM mempool/frontend:v${MEMPOOL_VERSION} AS upstream
+
+FROM nginx:${NGINX_VERSION}-alpine
+
+WORKDIR /patch
+
+COPY --from=upstream /patch/entrypoint.sh /patch/wait-for ./
+COPY --from=upstream /var/www/mempool /var/www/mempool
+COPY --from=upstream /etc/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY --from=upstream /etc/nginx/conf.d/nginx-mempool.conf /etc/nginx/conf.d/nginx-mempool.conf
+
+RUN rm -f /etc/nginx/conf.d/default.conf \
+    && chmod 755 /patch/entrypoint.sh /patch/wait-for \
+    && chown -R 1000:1000 /patch /var/cache/nginx /var/log/nginx \
+        /etc/nginx/nginx.conf /etc/nginx/conf.d /var/www/mempool \
+    && touch /var/run/nginx.pid \
+    && chown 1000:1000 /var/run/nginx.pid
+
+USER 1000
+
+ENTRYPOINT ["/patch/entrypoint.sh"]
+CMD ["nginx", "-g", "daemon off;"]
