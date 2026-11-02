@@ -55,11 +55,11 @@ openresty → mempool-web + mempool-api-{net}
 
 | Component | Version | Image |
 |-----------|---------|-------|
-| Bitcoin Core | 28.1 | mempool/bitcoin:28.1 |
-| Mempool | 3.1.0 | mempool/backend:v3.1.0, mempool/frontend:v3.1.0 |
-| Electrs | latest | mempool/electrs:latest |
-| MariaDB | 10.11 | mariadb:10.11 |
-| OpenResty | alpine | openresty/openresty:alpine |
+| Bitcoin Core | 30.4 | built from docker/Dockerfile.bitcoin |
+| Mempool | 3.3.2 | mempool/backend:v3.3.2, mempool/frontend:v3.3.2 |
+| Electrs | v3.3.0 | mempool/electrs:v3.3.0 |
+| MariaDB | 11.8.9 | mariadb:11.8.9 |
+| OpenResty | 1.31.8.1-alpine | openresty/openresty:1.31.8.1-alpine |
 
 ## File Structure
 

@@ -4,6 +4,22 @@ All notable changes to this project are documented in this file.
 
 ---
 
+## [Unreleased]
+
+### Security
+
+Default versions moved to patched releases. Existing deployments keep the versions in their `node.conf` until those are changed.
+
+- Bitcoin Core 30.2 → 30.4 (CVE-2026-117349, CVE-2026-117346); wizard fallback list drops end-of-life 28.x
+- Mempool 3.2.1 → 3.3.2 (Node.js 26.12.1). One-way database migration (schema 97 → 106): back up MariaDB first
+- Electrs `latest` (resolves to the v3.4.0-dev1 prerelease) → pinned v3.3.0 release
+- MariaDB 11.8 → 11.8.9 (22 CVEs fixed in 11.8.9)
+- OpenResty 1.29.2.1 → 1.31.8.1 (nginx 1.31.8, OpenSSL 3.5.9)
+- Fulcrum build-from-source Dockerfile 1.11.1 → 2.1.4
+- README prerequisite raised to Docker Engine 29.9.2+
+
+---
+
 ## [2.0.0] — 2026-03-09
 
 Complete rewrite from a static Docker Compose stack into a configurator-driven, self-hosted Bitcoin infrastructure platform.

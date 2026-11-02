@@ -185,11 +185,11 @@ clean_generated_configs
 cat > "${WORK_DIR}/node.conf" <<'NODECONF'
 NETWORKS=mainnet
 BITCOIN_MODE=docker-image
-BITCOIN_VERSION=28.1
-MEMPOOL_VERSION=3.1.0
-ELECTRS_VERSION=latest
-MARIADB_VERSION=10.11
-OPENRESTY_VERSION=alpine
+BITCOIN_VERSION=30.4
+MEMPOOL_VERSION=3.3.2
+ELECTRS_VERSION=v3.3.0
+MARIADB_VERSION=11.8.9
+OPENRESTY_VERSION=1.31.8.1-alpine
 STORAGE_PATH=/data/mempool
 BTRFS_ENABLED=false
 TXINDEX=true
@@ -339,6 +339,14 @@ assert_file_contains "docker-compose.yml: mempool-web service" \
 assert_file_contains "docker-compose.yml: openresty service" \
     "${WORK_DIR}/docker-compose.yml" \
     "^  openresty:"
+for pinned_image in mempool/electrs:v3.3.0 mempool/backend:v3.3.2 mempool/frontend:v3.3.2 mariadb:11.8.9 openresty/openresty:1.31.8.1-alpine; do
+    assert_file_contains "docker-compose.yml: image ${pinned_image}" \
+        "${WORK_DIR}/docker-compose.yml" \
+        "image: ${pinned_image}\$"
+done
+assert_file_contains "docker-compose.yml: BITCOIN_VERSION build arg 30.4" \
+    "${WORK_DIR}/docker-compose.yml" \
+    'BITCOIN_VERSION: "30.4"'
 assert_file_contains "docker-compose.yml: container_name: bitcoind-mainnet" \
     "${WORK_DIR}/docker-compose.yml" \
     "container_name: bitcoind-mainnet"
@@ -454,11 +462,11 @@ clean_generated_configs
 cat > "${WORK_DIR}/node.conf" <<'NODECONF'
 NETWORKS=mainnet,signet
 BITCOIN_MODE=docker-image
-BITCOIN_VERSION=28.1
-MEMPOOL_VERSION=3.1.0
-ELECTRS_VERSION=latest
-MARIADB_VERSION=10.11
-OPENRESTY_VERSION=alpine
+BITCOIN_VERSION=30.4
+MEMPOOL_VERSION=3.3.2
+ELECTRS_VERSION=v3.3.0
+MARIADB_VERSION=11.8.9
+OPENRESTY_VERSION=1.31.8.1-alpine
 STORAGE_PATH=/data/mempool
 BTRFS_ENABLED=false
 TXINDEX=true

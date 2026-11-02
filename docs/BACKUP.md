@@ -134,22 +134,22 @@ Each backup includes a `manifest.json` with metadata:
   "date": "2026-03-09T12:00:00+00:00",
   "components": {
     "bitcoin": {
-      "version": "28.1",
+      "version": "30.4",
       "block_height": 890123,
       "txindex": true,
       "size_bytes": 654321098765
     },
     "electrs": {
-      "version": "latest",
+      "version": "v3.3.0",
       "size_bytes": 87654321098
     },
     "mariadb": {
-      "version": "10.11",
+      "version": "11.8.9",
       "databases": ["mempool"],
       "size_bytes": 1234567890
     },
     "mempool": {
-      "version": "3.1.0",
+      "version": "3.3.2",
       "size_bytes": 12345678
     }
   },
